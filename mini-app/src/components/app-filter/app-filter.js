@@ -1,6 +1,6 @@
 import './app-filter.css';
 
-const AppFilter = () => {
+const AppFilter = ({checkRiseEmployees, checkSalaryFilter}) => {
     return (
         <div className="btn-group">
             <button 
@@ -11,13 +11,15 @@ const AppFilter = () => {
 
             <button 
                 className="btn btn-outline-light"
-                type="button">
+                type="button"
+                onClick={checkRiseEmployees} >
                     На повышение
             </button>
 
             <button 
                 className="btn btn-outline-light"
-                type="button">
+                type="button"
+                onClick={checkSalaryFilter}>
                     З/П больше 1000$
             </button>
         </div>

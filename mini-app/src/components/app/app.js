@@ -14,9 +14,9 @@ class App extends Component {
         super(props);
         this.state = {
             data: [
-                {fullName: "John Smith", salary: 1500, increase: true, id: 1},
-                {fullName: "Eric Pauel", salary: 850, increase: false, id: 2},
-                {fullName: "Josh Walker", salary: 1200, increase: false, id: 3}
+                {fullName: "John Smith", salary: 1500, increase: true, rise: true, id: 1},
+                {fullName: "Eric Pauel", salary: 850, increase: false, rise: false, id: 2},
+                {fullName: "Josh Walker", salary: 1200, increase: false, rise: false, id: 3}
             ]
         };
         this.maxId = 3;
@@ -27,6 +27,7 @@ class App extends Component {
             fullName: name,
             salary: salary,
             increase: false,
+            rise: false,
             id: ++this.maxId
         };
 
@@ -51,21 +52,71 @@ class App extends Component {
         })
     }
 
+    onToggleIncrease = (id) => {
+        this.setState(({data}) => 
+        // {
+        //     const index = data.findIndex(elem => elem.id === id);
+
+        //     const oldItem = data[index];
+        //     const updatedItem = {...oldItem, increase: !oldItem.increase};          
+        //     const newArr = [...data.slice(0,index), updatedItem, ...data.slice(index+1)];
+        //     return {
+        //         data: newArr
+        //     }
+        // })
+        ({
+            data: data.map(item => {
+                if(item.id === id) {
+                    return {...item, increase: !item.increase};
+                }
+                return item;
+            })
+        }))
+    }
+
+    onToggleRise = (id) => {
+        this.setState(({data}) => ({
+            data: data.map(item => {
+                if(item.id === id) {
+                    return {...item, rise: !item.rise};
+                }
+
+                return item;
+            })
+        }))
+    }
+
+    checkRiseEmployees = () => {
+        return this.state.data.filter(item => item.rise)
+    }
+
+    checkSalaryFilter = () => {
+        return this.state.data.filter(item => item.salary>1000)
+    }
+
     render() {
         const {data} = this.state;
+        const increased = data.filter(item => item.increase).length,
+              totalEmployees = data.length;
 
         return (
             <div className="app">
-                <AppInfo/>
+                <AppInfo
+                    totalEmployees={totalEmployees}
+                    getIncrease={increased} />
     
                 <div className="search-panel">
                     <SearchPanel/>
-                    <AppFilter/>
+                    <AppFilter
+                        filterRise={this.checkRiseEmployees}
+                        filterSalary={this.checkSalaryFilter} />
                 </div>
     
                 <EmployersList 
                     data={data}
-                    onDelete={this.deleteItem}/>
+                    onDelete={this.deleteItem}
+                    onToggleIncrease={this.onToggleIncrease}
+                    onToggleRise={this.onToggleRise}/>
                 <EmployersAddForm
                     onAdd={this.addItem}/>
             </div>
