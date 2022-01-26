@@ -17,7 +17,10 @@ class App extends Component {
                 {fullName: "John Smith", salary: 1500, increase: true, rise: true, id: 1},
                 {fullName: "Eric Pauel", salary: 850, increase: false, rise: false, id: 2},
                 {fullName: "Josh Walker", salary: 1200, increase: false, rise: false, id: 3}
-            ]
+            ],
+            term: "",
+            method: "all",
+            filter: ['all', 'riseEmp', 'bySalary']
         };
         this.maxId = 3;
     }
@@ -52,7 +55,7 @@ class App extends Component {
         })
     }
 
-    onToggleIncrease = (id) => {
+    onToggleProp = (id, prop) => {
         this.setState(({data}) => 
         // {
         //     const index = data.findIndex(elem => elem.id === id);
@@ -67,37 +70,70 @@ class App extends Component {
         ({
             data: data.map(item => {
                 if(item.id === id) {
-                    return {...item, increase: !item.increase};
+                    return {...item, [prop]: !item[prop]};
                 }
                 return item;
             })
         }))
     }
 
-    onToggleRise = (id) => {
-        this.setState(({data}) => ({
-            data: data.map(item => {
-                if(item.id === id) {
-                    return {...item, rise: !item.rise};
+    getMethodFilter = (method) => {
+        this.setState({method})
+    }
+    // onUpdateSearch = (e) => {
+    //     this.setState(() => {
+    //         console.log(e.target.value);
+    //         return {
+    //             term: e.target.value
+    //         }
+    //     })
+    // }
+
+    onUpdateSearch = (term) => {
+        this.setState({term})
+    }
+
+    searchEmployees = (items, term, method) => {
+        switch(method) {
+            case "all":
+                if(term.length === 0){
+                    return items;
+                } else {
+                    return items.filter(item => {
+                        return item.fullName.indexOf(term) > -1
+                    });
                 }
 
-                return item;
-            })
-        }))
-    }
-
-    checkRiseEmployees = () => {
-        return this.state.data.filter(item => item.rise)
-    }
-
-    checkSalaryFilter = () => {
-        return this.state.data.filter(item => item.salary>1000)
+            case "riseEmp":
+                if(term.length === 0) {
+                    return items.filter(item => item.rise)
+                } else {
+                    return items.filter(item => item.rise) //фильтрует по должности, а потом....
+                        .filter(item => {   //и по введенному имени
+                        return item.fullName.indexOf(term) > -1
+                    });
+                }
+                
+            case "bySalary":
+                if(term.length ===0) {
+                    return items.filter(item => item.salary>1000);
+                } else {
+                    return items.filter(item => item.salary>1000) //фильтрует по зарплате, а потом...
+                        .filter(item => {   //=и по введенному имени
+                        return item.fullName.indexOf(term) > -1 
+                    })
+                }
+            
+            default: 
+                new Error();
+        }
     }
 
     render() {
-        const {data} = this.state;
+        const {data, term, method} = this.state;
         const increased = data.filter(item => item.increase).length,
               totalEmployees = data.length;
+        const visibleData = this.searchEmployees(data, term, method);
 
         return (
             <div className="app">
@@ -106,17 +142,16 @@ class App extends Component {
                     getIncrease={increased} />
     
                 <div className="search-panel">
-                    <SearchPanel/>
+                    <SearchPanel
+                        onUpdateSearch={this.onUpdateSearch} />
                     <AppFilter
-                        filterRise={this.checkRiseEmployees}
-                        filterSalary={this.checkSalaryFilter} />
+                        getMethodFilter={this.getMethodFilter} />
                 </div>
     
                 <EmployersList 
-                    data={data}
+                    data={visibleData}
                     onDelete={this.deleteItem}
-                    onToggleIncrease={this.onToggleIncrease}
-                    onToggleRise={this.onToggleRise}/>
+                    onToggleProp={this.onToggleProp} />
                 <EmployersAddForm
                     onAdd={this.addItem}/>
             </div>

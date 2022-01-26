@@ -1,29 +1,50 @@
+import { Component } from 'react';
+
 import './app-filter.css';
 
-const AppFilter = ({checkRiseEmployees, checkSalaryFilter}) => {
-    return (
-        <div className="btn-group">
-            <button 
-                className="btn btn-light"
-                type="button">
-                    Все сотрудники
-            </button>
+class AppFilter extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            method: "all"
+        }
+    }
 
-            <button 
-                className="btn btn-outline-light"
-                type="button"
-                onClick={checkRiseEmployees} >
-                    На повышение
-            </button>
+    getMethodFilter = (e) => {
+        const method = e.currentTarget.getAttribute("data-method");
+        this.setState({method});
+        this.props.getMethodFilter(method);
+    }
 
-            <button 
-                className="btn btn-outline-light"
-                type="button"
-                onClick={checkSalaryFilter}>
-                    З/П больше 1000$
-            </button>
-        </div>
-    );
+    render() {
+        return (
+            <div className="btn-group">
+                <button 
+                    className="btn btn-light"
+                    type="button"
+                    onClick={this.getMethodFilter}
+                    data-method="all" >
+                        Все сотрудники
+                </button>
+    
+                <button 
+                    className="btn btn-outline-light" //->надо поменять стили при нажатии
+                    type="button"
+                    onClick={this.getMethodFilter}
+                    data-method="riseEmp" >
+                        На повышение
+                </button>
+    
+                <button 
+                    className="btn btn-outline-light"
+                    type="button"
+                    onClick={this.getMethodFilter}
+                    data-method="bySalary" >
+                        З/П больше 1000$
+                </button>
+            </div>
+        );
+    }
 }
 
 export default AppFilter;

@@ -22,7 +22,7 @@ class EmployersAddForm extends Component {
 
         const {nameEmployee, salaryEmployee} = this.state;
         if(nameEmployee !== "" && salaryEmployee !== "") {
-            this.props.onAdd(this.state.nameEmployee, this.state.salaryEmployee);
+            this.props.onAdd(nameEmployee, salaryEmployee);
             this.setState(() => ({
                 nameEmployee: "",
                 salaryEmployee: ""
