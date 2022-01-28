@@ -6,21 +6,77 @@ class AppFilter extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            method: "all"
+            filterMethod: "all",
+            filterSalaryNum: 1000
         }
     }
 
+    getNumber = (e) => {
+        const filterSalaryNum = +e.target.value;
+        this.setState({filterSalaryNum});
+    }
+
     getMethodFilter = (e) => {
-        const method = e.currentTarget.getAttribute("data-method");
-        this.setState({method});
-        this.props.getMethodFilter(method);
+        const filterMethod = e.currentTarget.getAttribute("data-method");
+        this.setState({filterMethod});
+        this.props.getMethodFilter(filterMethod, this.state.filterSalaryNum);
+    }
+
+    getClassesOfBtn = (method) => {
+        let classes = "btn";
+        
+        if(method === this.state.filterMethod)
+            classes += " btn-light"
+        else 
+            classes += " btn-outline-light"
+
+        return classes
     }
 
     render() {
+        const buttonsData = [
+            {name: "all", label: "Все сотрудники"},
+            {name: "rise", label: "На повышение"},
+            {name: "bySalary", label: "Все сотрудники"}
+        ]
+
+        const buttons = buttonsData.map(({name, label}) => {
+            const className = this.getClassesOfBtn(name);
+
+            if(name === "bySalary")
+                return (
+                    <button 
+                        className={className}
+                        type="button"
+                        key={name}
+                        onClick={this.getMethodFilter}
+                        data-method={name} >
+                            {label}
+                            <input 
+                                className = "salaryInput"
+                                type = "text" 
+                                value = {this.state.filterSalaryNum}
+                                onChange = {this.getNumber} />
+                    </button>
+                )
+
+            return (
+                <button 
+                    className={className}
+                    type="button"
+                    key={name}
+                    onClick={this.getMethodFilter}
+                    data-method={name} >
+                        {label}
+                </button>
+            )
+        })
+
         return (
             <div className="btn-group">
-                <button 
-                    className="btn btn-light"
+                {buttons}
+{/*                 <button 
+                    className={buttonsData.methodAll}
                     type="button"
                     onClick={this.getMethodFilter}
                     data-method="all" >
@@ -28,20 +84,25 @@ class AppFilter extends Component {
                 </button>
     
                 <button 
-                    className="btn btn-outline-light" //->надо поменять стили при нажатии
+                    className={buttonsData.methodRise} //->надо поменять стили при нажатии
                     type="button"
                     onClick={this.getMethodFilter}
-                    data-method="riseEmp" >
+                    data-method="rise" >
                         На повышение
                 </button>
     
                 <button 
-                    className="btn btn-outline-light"
+                    className={buttonsData.methodBySalary}
                     type="button"
                     onClick={this.getMethodFilter}
                     data-method="bySalary" >
-                        З/П больше 1000$
-                </button>
+                        З/П больше 
+                        <input 
+                            className = "salaryInput"
+                            type = "text" 
+                            value = {this.state.filterSalaryNum}
+                            onChange = {this.getNumber} />
+                </button> */}
             </div>
         );
     }

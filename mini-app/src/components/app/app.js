@@ -19,8 +19,8 @@ class App extends Component {
                 {fullName: "Josh Walker", salary: 1200, increase: false, rise: false, id: 3}
             ],
             term: "",
-            method: "all",
-            filter: ['all', 'riseEmp', 'bySalary']
+            filterMethod: "all", filterSalaryNum: 1000,
+            filter: ['all', 'rise', 'bySalary']
         };
         this.maxId = 3;
     }
@@ -69,16 +69,29 @@ class App extends Component {
         // })
         ({
             data: data.map(item => {
-                if(item.id === id) {
+                if(item.id === id)
                     return {...item, [prop]: !item[prop]};
-                }
                 return item;
             })
         }))
     }
 
-    getMethodFilter = (method) => {
-        this.setState({method})
+    updateSalary = (id, salary) => {
+        if(!Number(salary))
+            salary = salary.slice(0, -1)
+
+        this.setState(({data}) => ({
+            data: data.map(item => {
+                if(item.id === id)
+                    return {...item, salary: salary};
+                return item;
+            })
+        }))
+    }
+
+    getMethodFilter = (filterMethod, filterSalaryNum) => {
+        this.setState({filterMethod});
+        this.setState({filterSalaryNum});
     }
     // onUpdateSearch = (e) => {
     //     this.setState(() => {
@@ -93,44 +106,39 @@ class App extends Component {
         this.setState({term})
     }
 
-    searchEmployees = (items, term, method) => {
+    searchByName = (arr, term) => {
+        const newArr = arr.filter(item => {
+            return item.fullName.indexOf(term) > -1;
+        })
+        
+        return newArr;
+    }
+
+    searchEmployees = (emp, term, method) => {
+        let newListEmployees;
+
         switch(method) {
             case "all":
-                if(term.length === 0){
-                    return items;
-                } else {
-                    return items.filter(item => {
-                        return item.fullName.indexOf(term) > -1
-                    });
-                }
-
-            case "riseEmp":
-                if(term.length === 0) {
-                    return items.filter(item => item.rise)
-                } else {
-                    return items.filter(item => item.rise) //фильтрует по должности, а потом....
-                        .filter(item => {   //и по введенному имени
-                        return item.fullName.indexOf(term) > -1
-                    });
-                }
-                
-            case "bySalary":
-                if(term.length ===0) {
-                    return items.filter(item => item.salary>1000);
-                } else {
-                    return items.filter(item => item.salary>1000) //фильтрует по зарплате, а потом...
-                        .filter(item => {   //=и по введенному имени
-                        return item.fullName.indexOf(term) > -1 
-                    })
-                }
-            
+                newListEmployees = emp;
+                break;
+            case "rise":
+                newListEmployees = emp.filter(item => item.rise);
+                break;
+            case "bySalary": 
+                newListEmployees = emp.filter(item => item.salary>this.state.filterSalaryNum);
+                break;
             default: 
                 new Error();
         }
+
+        if(term.length !== 0)
+            newListEmployees = this.searchByName(newListEmployees, term);
+
+        return newListEmployees;
     }
 
     render() {
-        const {data, term, method} = this.state;
+        const {data, term, filterMethod: method} = this.state;
         const increased = data.filter(item => item.increase).length,
               totalEmployees = data.length;
         const visibleData = this.searchEmployees(data, term, method);
@@ -151,7 +159,8 @@ class App extends Component {
                 <EmployersList 
                     data={visibleData}
                     onDelete={this.deleteItem}
-                    onToggleProp={this.onToggleProp} />
+                    onToggleProp={this.onToggleProp}
+                    updateSalary={this.updateSalary} />
                 <EmployersAddForm
                     onAdd={this.addItem}/>
             </div>
